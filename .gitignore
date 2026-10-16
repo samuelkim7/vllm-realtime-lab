@@ -1,0 +1,24 @@
+__pycache__/
+*.egg-info/
+dist/
+build/
+
+.venv/
+.env
+.env.*
+!.env.example
+
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+
+# Profiler traces are too large for git; results/ keeps the numbers taken from them
+*.nsys-rep
+*.qdrep
+*.pt.trace.json
+traces/
+
+.dev/
+.sessions/
+.kanban/

@@ -1,0 +1,69 @@
+[project]
+name = "vllm-realtime-lab"
+version = "0.1.0"
+description = "vLLM latency tuning for real-time workloads, measured technique by technique"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Samuel Kim", email = "samuelmwkim@gmail.com" }]
+keywords = ["vllm", "llm", "inference", "latency", "voice-agent", "benchmark"]
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/samuelkim7/vllm-realtime-lab"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.3,<3",
+    "pre-commit>=4.6,<5",
+    "pytest>=9.1,<10",
+    "ruff>=0.16.5,<0.17",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "UP", "B", "A", "ASYNC", "S", "BLE",
+    "T10", "T20", "DTZ", "G", "LOG", "D", "RUF",
+]
+# Docstring style is enforced, presence is not
+ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D107"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "D"]
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src", "tests"]
+strict = true
+warn_unreachable = true
+pretty = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[tool.pytest]
+testpaths = ["tests"]
+addopts = ["-ra", "--import-mode=importlib"]
+strict = true
+filterwarnings = ["error"]
+markers = [
+    "live: requires a running vLLM endpoint (deselected in CI)",
+]
