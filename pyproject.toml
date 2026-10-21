@@ -1,20 +1,23 @@
 [project]
 name = "vllm-realtime-lab"
 version = "0.1.0"
-description = "vLLM latency tuning for real-time workloads, measured technique by technique"
+description = "vLLM latency tuning for real-time workloads, hunting down milliseconds with caching, quantization and speculative decoding"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Samuel Kim", email = "samuelmwkim@gmail.com" }]
 keywords = ["vllm", "llm", "inference", "latency", "voice-agent", "benchmark"]
-dependencies = []
+dependencies = [
+    "msgspec>=0.19,<1.0",
+]
 
 [project.urls]
 Repository = "https://github.com/samuelkim7/vllm-realtime-lab"
 
 [dependency-groups]
 dev = [
+    "modal>=1.5,<2",
     "mypy>=2.3,<3",
     "pre-commit>=4.6,<5",
     "pytest>=9.1,<10",
@@ -32,24 +35,13 @@ line-length = 100
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = [
-    "E", "W", "F", "I", "UP", "B", "A", "ASYNC", "S", "BLE",
-    "T10", "T20", "DTZ", "G", "LOG", "D", "RUF",
-]
-# Docstring style is enforced, presence is not
-ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D107"]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101", "D"]
+select = ["E", "W", "F", "I", "UP", "B"]
 
 [tool.ruff.lint.isort]
 required-imports = ["from __future__ import annotations"]
 
-[tool.ruff.lint.pydocstyle]
-convention = "google"
-
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.13"
 files = ["src", "tests"]
 strict = true
 warn_unreachable = true
