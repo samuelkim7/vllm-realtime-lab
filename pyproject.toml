@@ -23,6 +23,17 @@ dev = [
     "pytest>=9.1,<10",
     "ruff>=0.16.5,<0.17",
 ]
+voice = [
+    "httpx2>=2.16,<3",
+    "pydantic-settings>=2.16.1,<3",
+    "sounddevice>=0.5.6,<0.6",
+    "starlette>=1.9.0,<2",
+    "uvicorn>=0.54.0,<0.55",
+    "websockets>=17.3,<18",
+]
+
+[tool.uv]
+default-groups = ["dev", "voice"]
 
 [build-system]
 requires = ["uv_build>=0.12.7,<0.13"]
@@ -43,9 +54,14 @@ required-imports = ["from __future__ import annotations"]
 [tool.mypy]
 python_version = "3.13"
 files = ["src", "tests"]
+plugins = ["pydantic.mypy"]
 strict = true
 warn_unreachable = true
 pretty = true
+
+[[tool.mypy.overrides]]
+module = ["sounddevice"]
+ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["tests.*"]

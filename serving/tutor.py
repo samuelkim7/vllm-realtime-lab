@@ -12,18 +12,17 @@ from pathlib import Path
 
 import modal
 
+from vllm_realtime_lab.deployment import TURNS_DIR, TURNS_VOLUME, TUTOR_APP, TUTOR_MODEL
 from vllm_realtime_lab.server.middleware import LOG_ENV, TurnLogMiddleware
 
 VLLM_VERSION = "0.28.0"
 # devel ships the nvcc FlashInfer needs at startup. Its CUDA must match vLLM's torch.
 CUDA_IMAGE = "nvidia/cuda:13.0.3-devel-ubuntu24.04"
-MODEL = "Qwen/Qwen3.6-35B-A3B-FP8"
 MODEL_REVISION = "95a723d08a9490559dae23d0cff1d9466213d989"
 GPU = "L40S"
 PORT = 8000
-TURNS = Path("/turns")
 
-app = modal.App("german-tutor")
+app = modal.App(TUTOR_APP)
 image = (
     modal.Image.from_registry(CUDA_IMAGE, add_python="3.13")
     .pip_install(f"vllm=={VLLM_VERSION}")
@@ -32,7 +31,7 @@ image = (
     .add_local_python_source("vllm_realtime_lab")
 )
 hf_cache = modal.Volume.from_name("vrl-hf-cache", create_if_missing=True)
-turns = modal.Volume.from_name("vrl-turns", create_if_missing=True)
+turns = modal.Volume.from_name(TURNS_VOLUME, create_if_missing=True)
 compile_cache = modal.Volume.from_name("vrl-compile-cache", create_if_missing=True)
 
 
@@ -42,7 +41,7 @@ compile_cache = modal.Volume.from_name("vrl-compile-cache", create_if_missing=Tr
     volumes={
         "/root/.cache/huggingface": hf_cache,
         "/root/.cache/vllm": compile_cache,
-        str(TURNS): turns,
+        str(TURNS_DIR): turns,
     },
     # One container caps what a leaked proxy token can spend.
     max_containers=1,
@@ -58,7 +57,7 @@ def serve() -> None:
     cmd = [
         "vllm",
         "serve",
-        MODEL,
+        TUTOR_MODEL,
         "--revision",
         MODEL_REVISION,
         "--host",
@@ -76,13 +75,13 @@ def serve() -> None:
         '{"enable_thinking": false}',
     ]
     meta = {"vllm_version": version("vllm"), "gpu": read_gpu_name(), "cmd": cmd}
-    (TURNS / f"server-{started}.json").write_text(json.dumps(meta, indent=2))
+    (TURNS_DIR / f"server-{started}.json").write_text(json.dumps(meta, indent=2))
 
-    log_path = TURNS / f"turns-{started}.jsonl"
+    log_path = TURNS_DIR / f"turns-{started}.jsonl"
     env = os.environ | {LOG_ENV: str(log_path), "PYTHONPATH": "/root"}
     server = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     threading.Thread(
-        target=copy_log, args=(server, TURNS / f"vllm-{started}.log"), daemon=True
+        target=copy_log, args=(server, TURNS_DIR / f"vllm-{started}.log"), daemon=True
     ).start()
     threading.Thread(target=exit_with_vllm, args=(server,), daemon=True).start()
 

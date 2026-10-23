@@ -12,10 +12,11 @@ These are personal experiments, not affiliated with the vLLM project.
 
 ## Layout
 
-- `serving/`: the tutor model on Modal, behind Modal proxy auth. `serving/README.md` has the commands.
+- `serving/`: the tutor model and the voice orchestrator on Modal, behind Modal proxy auth. `serving/README.md` has the commands.
 - `src/vllm_realtime_lab/engines/`: every field name the lab reads from a vLLM response.
 - `src/vllm_realtime_lab/server/`: the middleware that runs inside vLLM and logs one line of timestamps per turn.
 - `src/vllm_realtime_lab/speech/`: the rule for where a sentence ends.
+- `src/vllm_realtime_lab/voice/`: the voice orchestrator, which runs one spoken turn through Inworld and the tutor model, and the Mac client that talks to it.
 - `tests/`: unit tests, and integration tests that write files.
 - `docs/plan.md`: the experiments in order, and what each one measures.
 

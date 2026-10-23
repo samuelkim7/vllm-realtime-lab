@@ -10,6 +10,7 @@ from typing import Any
 
 import msgspec
 
+from vllm_realtime_lab import jsonl
 from vllm_realtime_lab.engines import vllm
 from vllm_realtime_lab.speech.sentences import first_sentence_end
 
@@ -162,8 +163,4 @@ class TurnLogMiddleware:
         try:
             await self.app(scope, receive, send_tracked)
         finally:
-            self._append(turn.record)
-
-    def _append(self, record: TurnRecord) -> None:
-        with self.log_path.open("ab") as f:
-            f.write(msgspec.json.encode(record) + b"\n")
+            jsonl.append(self.log_path, turn.record)

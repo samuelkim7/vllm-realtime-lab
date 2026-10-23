@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -10,6 +9,8 @@ import pytest
 
 from vllm_realtime_lab.server import middleware
 from vllm_realtime_lab.server.middleware import ASGIApp, Message, Scope, TurnLogMiddleware
+
+from .helpers import read_turns, sse_event
 
 CHAT_PATH = "/v1/chat/completions"
 
@@ -38,11 +39,6 @@ def log_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     path = tmp_path / "turns.jsonl"
     monkeypatch.setenv(middleware.LOG_ENV, str(path))
     return path
-
-
-def sse_event(**delta: Any) -> bytes:
-    chunk = {"choices": [{"delta": delta}]}
-    return f"data: {json.dumps(chunk)}\n\n".encode()
 
 
 def build_app(
@@ -86,11 +82,6 @@ def call_app(app: ASGIApp, scope: Scope) -> list[Message]:
 
     asyncio.run(serve_once())
     return sent
-
-
-def read_turns(path: Path) -> Iterator[dict[str, Any]]:
-    for line in path.read_text().splitlines():
-        yield json.loads(line)
 
 
 def test_passes_lifespan_through(log_path: Path) -> None:

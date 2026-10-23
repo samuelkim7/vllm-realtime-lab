@@ -3,6 +3,7 @@ from __future__ import annotations
 import msgspec
 
 CHAT_PATH = "/v1/chat/completions"
+MODELS_PATH = "/v1/models"
 EVENT_STREAM = b"text/event-stream"
 DATA_PREFIX = b"data:"
 DONE = b"[DONE]"
@@ -33,7 +34,7 @@ class ChatBody(msgspec.Struct):
     choices: list[Choice] = []
 
 
-def decode(payload: bytes) -> list[Delta]:
+def decode(payload: bytes | str) -> list[Delta]:
     """Return the new text in one server-sent event payload or one non-streamed body.
 
     Raises:
